@@ -1,0 +1,15 @@
+syntax = "proto3";
+package user_authorization;
+
+
+service UserAuthorization {
+  rpc UserAuthorization(UserAuthorizationRequest) returns (UserAuthorizationResponse);
+}
+
+message UserAuthorizationRequest {
+  string session = 1;
+}
+
+message UserAuthorizationResponse {
+   bool is_authorized = 1;
+}

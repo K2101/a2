@@ -25,25 +25,25 @@ async fn main() -> std::io::Result<()> {
     .await
     .unwrap();
 
-    // let kafka_broker = config.kafka_broker.as_str();
-    // let producer = producer_client(kafka_broker).await;
-    // let producer = web::Data::new(producer);
+    let kafka_broker = config.kafka_broker.as_str();
+    let producer = producer_client(kafka_broker).await;
+    let producer = web::Data::new(producer);
     let database = web::Data::new(database);
     let app_config = web::Data::new(app_config);
 
     let cache = Cache::keydb_create_client_and_connect(&config.key_db).await;
     let cache = web::Data::new(cache);
 
-    // subscribe_and_consume(
-    //     kafka_broker,
-    //     CONSUMER_GROUP,
-    //     config.threads_nums,
-    //     app_config.clone(),
-    //     database.clone(),
-    //     producer.clone(),
-    //     cache.clone(),
-    // )
-    // .await;
+    subscribe_and_consume(
+        kafka_broker,
+        CONSUMER_GROUP,
+        config.threads_nums,
+        app_config.clone(),
+        database.clone(),
+        producer.clone(),
+        cache.clone(),
+    )
+    .await;
 
     // rpc
     let rt = tokio::runtime::Builder::new_multi_thread()

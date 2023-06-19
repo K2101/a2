@@ -1,6 +1,7 @@
 use crate::config::app_config::{exit_program, AppConfig, ExitCode};
 use crate::config::kafka_info::Topic;
 use crate::data::database::Database;
+use crate::data::key_db::Cache;
 use crate::event;
 use crate::event::kafka_client::consumer_client;
 use crate::service;
@@ -17,9 +18,10 @@ pub async fn subscribe_and_consume(
     broker: &str,
     group_id: &str,
     threads: usize,
-    database: web::Data<Database>,
     app_config: web::Data<AppConfig>,
+    database: web::Data<Database>,
     producer: web::Data<FutureProducer>,
+    cache: web::Data<Cache>,
 ) {
     for _ in 0..threads {
         let consumer = consumer_client(broker, group_id).await;

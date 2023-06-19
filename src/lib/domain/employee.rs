@@ -1,5 +1,5 @@
 use super::user::InternalUser;
-use super::{AuthError, Result};
+use super::{DomainError, Result};
 use crate::config::app_config::AppConfig;
 use crate::utils;
 use uuid::Uuid;
@@ -35,14 +35,14 @@ impl Employee {
             || role.is_empty()
             || status.is_empty()
         {
-            return Err(AuthError::EmptyContent("empty content"));
+            return Err(DomainError::EmptyContent("empty content"));
         }
 
         let password = match utils::hash::hash(app_config, password, None) {
             Ok(pd) => pd,
             Err(err) => {
                 println!("domain password error: {:?}", err);
-                return Err(AuthError::HashError("hash error".to_string()));
+                return Err(DomainError::HashError("hash error".to_string()));
             }
         };
         let role: super::user::InternalRole = role.as_str().try_into()?;

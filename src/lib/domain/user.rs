@@ -1,4 +1,4 @@
-use super::{AuthError, Result};
+use super::{DomainError, Result};
 use serde::Deserialize;
 
 #[derive(Debug, PartialEq, PartialOrd, Deserialize)]
@@ -31,7 +31,7 @@ impl From<&Status> for &'static str {
 }
 
 impl TryFrom<&str> for Status {
-    type Error = AuthError;
+    type Error = DomainError;
     fn try_from(status: &str) -> std::result::Result<Self, Self::Error> {
         let status = status.trim();
         use Status::*;
@@ -39,7 +39,7 @@ impl TryFrom<&str> for Status {
             "ACTIVE" => Ok(Active),
             "INACTIVE" => Ok(InActive),
             "TERMINATED" => Ok(Terminated),
-            _ => Err(AuthError::StatusError),
+            _ => Err(DomainError::StatusError),
         }
     }
 }
@@ -63,7 +63,7 @@ impl From<Role> for &'static str {
 }
 
 impl TryFrom<&str> for Role {
-    type Error = AuthError;
+    type Error = DomainError;
     fn try_from(status: &str) -> std::result::Result<Self, Self::Error> {
         let status = status.trim();
         use Role::*;
@@ -71,7 +71,7 @@ impl TryFrom<&str> for Role {
             "PERSONAL_USER" => Ok(PersonalUser),
             "COPORATE_USER" => Ok(CoporateUser),
             "THIRD_PARTY_USER" => Ok(ThirdPartyUser),
-            _ => Err(AuthError::RoleError),
+            _ => Err(DomainError::RoleError),
         }
     }
 }
@@ -128,7 +128,7 @@ impl From<&InternalRole> for &'static str {
 }
 
 impl TryFrom<&str> for InternalRole {
-    type Error = AuthError;
+    type Error = DomainError;
     fn try_from(internal_role: &str) -> std::result::Result<Self, Self::Error> {
         let internal_role = internal_role.trim();
         use InternalRole::*;
@@ -139,7 +139,7 @@ impl TryFrom<&str> for InternalRole {
             "DEVELOPER_USER" => Ok(DeveloperUser),
             "ACCOUNT_USER" => Ok(AccountUser),
             "SUPPORT_USER" => Ok(SupportUser),
-            _ => Err(AuthError::InternalRoleError),
+            _ => Err(DomainError::InternalRoleError),
         }
     }
 }
@@ -150,12 +150,12 @@ pub struct InternalUser(InternalRole, Status);
 impl InternalUser {
     pub fn new(internal_role: InternalRole, status: Status) -> Result<Self> {
         if internal_role == InternalRole::SuperAdminUser {
-            return Err(AuthError::PermissionError(
+            return Err(DomainError::PermissionError(
                 "permission error, cannot create a super admin",
             ));
         }
         if internal_role == InternalRole::AdminUser {
-            return Err(AuthError::PermissionError(
+            return Err(DomainError::PermissionError(
                 "permission error, cannot create an admin user",
             ));
         }
@@ -168,7 +168,7 @@ impl InternalUser {
         role: InternalRole,
     ) -> Result<Self> {
         if user.0 != InternalRole::AdminUser {
-            return Err(AuthError::PermissionError(
+            return Err(DomainError::PermissionError(
                 "who use this fn must be an admin",
             ));
         }
@@ -182,7 +182,7 @@ impl InternalUser {
         status: Status,
     ) -> Result<Self> {
         if user.0 != InternalRole::AdminUser {
-            return Err(AuthError::PermissionError(
+            return Err(DomainError::PermissionError(
                 "who use this fn must be an admin",
             ));
         }

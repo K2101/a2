@@ -1,5 +1,5 @@
 use crate::config::app_config::AppConfig;
-use crate::domain::AuthError;
+use crate::domain::DomainError;
 use crate::service;
 use crate::utils::rand::rand;
 use argon2::password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString};
@@ -25,7 +25,9 @@ pub fn hash(
         Ok(salt) => salt,
         Err(err) => {
             println!("create salt error: {:?}", err);
-            return Err(service::ServiceError::InternalError("create salt error"));
+            return Err(service::ServiceError::InternalServerError(
+                "create salt error",
+            ));
         }
     };
 
@@ -38,7 +40,7 @@ pub fn hash(
         Ok(argon2) => argon2,
         Err(err) => {
             println!("error to create argon2: {:?}", err);
-            return Err(service::ServiceError::InternalError(
+            return Err(service::ServiceError::InternalServerError(
                 "error to create argon2",
             ));
         }
@@ -50,7 +52,7 @@ pub fn hash(
         Ok(value_hashed) => value_hashed,
         Err(err) => {
             println!("hash error: {:?}", err);
-            return Err(AuthError::HashError("hash error".to_string()))?;
+            return Err(DomainError::HashError("hash error".to_string()))?;
         }
     };
 
@@ -69,7 +71,7 @@ pub fn verify_password(app_config: &AppConfig, hash: &str, value: &str) -> servi
         Ok(argon2) => argon2,
         Err(err) => {
             println!("error to create argon2: {:?}", err);
-            return Err(service::ServiceError::InternalError(
+            return Err(service::ServiceError::InternalServerError(
                 "error to create argon2",
             ));
         }

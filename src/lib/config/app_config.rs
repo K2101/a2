@@ -21,6 +21,7 @@ pub enum ExitCode {
     InternalServerError = 25,
     WritetimeNotEqualOrDuplicateTransactionIdButTransactionTimestampNotEqual = 26,
     ConsumeError = 27,
+    EventError = 95,
 }
 
 #[derive(Debug)]

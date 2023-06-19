@@ -1,4 +1,4 @@
-use super::{AuthError, Result};
+use super::{DomainError, Result};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -17,11 +17,11 @@ impl Claims {
         let role = role.trim().to_string();
 
         if session_id.is_empty() || role.is_empty() {
-            return Err(AuthError::InvalidClaims);
+            return Err(DomainError::InvalidClaims);
         }
 
         if !role.is_ascii() {
-            return Err(AuthError::InvalidClaims);
+            return Err(DomainError::InvalidClaims);
         }
 
         Ok(Self {

@@ -16,10 +16,9 @@ impl Totp {
         let secret_vec = match Secret::Raw(secret.trim().as_bytes().to_vec()).to_bytes() {
             Ok(sr) => sr,
             Err(err) => {
-                return Err(ServiceError::TotpeError(format!(
-                    "create totp secret error: {:?}",
-                    err
-                )))
+                return Err(ServiceError::InternalServerError(
+                    "create totp secret error",
+                ))
             }
         };
 
@@ -40,10 +39,9 @@ impl Totp {
         ) {
             Ok(totp) => totp,
             Err(err) => {
-                return Err(ServiceError::TotpeError(format!(
-                    "create totp instance error: {:?}",
-                    err
-                )))
+                return Err(ServiceError::InternalServerError(
+                    "create totp instance error",
+                ))
             }
         };
 
@@ -54,10 +52,9 @@ impl Totp {
         let token = match self.totp.generate_current() {
             Ok(token) => token,
             Err(err) => {
-                return Err(ServiceError::TotpeError(format!(
-                    "generate token error: {:?}",
-                    err
-                )))
+                return Err(ServiceError::InternalServerError(
+                    "generate totp token errorr",
+                ))
             }
         };
 
@@ -68,12 +65,7 @@ impl Totp {
     pub fn check(&self, token: &str) -> Result<bool> {
         let is_true = match self.totp.check_current(token) {
             Ok(is_true) => is_true,
-            Err(err) => {
-                return Err(ServiceError::TotpeError(format!(
-                    "check token error: {:?}",
-                    err
-                )))
-            }
+            Err(err) => return Err(ServiceError::InternalServerError("check totp token error")),
         };
         Ok(is_true)
     }

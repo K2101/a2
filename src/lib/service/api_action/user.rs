@@ -55,7 +55,7 @@ pub async fn web_user_login<'c>(
         Ok(time_sec) => time_sec as usize,
         Err(err) => {
             println!("error to convert to unix seconds: {:?}", err);
-            return Err(ServiceError::InternalError(
+            return Err(ServiceError::InternalServerError(
                 "error to convert to unix seconds",
             ));
         }
@@ -67,7 +67,7 @@ pub async fn web_user_login<'c>(
         Ok(token) => token,
         Err(err) => {
             println!("error to encode jwt: {:?}", err);
-            return Err(ServiceError::InternalError("error to encode jwt"));
+            return Err(ServiceError::InternalServerError("error to encode jwt"));
         }
     };
 
@@ -97,6 +97,11 @@ pub async fn web_user_login<'c>(
     let result = data::query_key_db::insert_session_to_cache(cache, web_session).await;
     match result {
         Ok(_) => {
+            // new response
+            // HttpResponse::Ok()
+            // .cookie(cookie)
+            // .json(json!({"status": "success", "token": token}))
+
             let cookie = Cookie::build("session_id", session_id)
                 .domain("localhost")
                 .path("/")
@@ -108,7 +113,7 @@ pub async fn web_user_login<'c>(
         }
         Err(err) => {
             println!("error to insert sessions to cache: {:?}", err);
-            Err(ServiceError::DatabaseError(err))
+            Err(err)
         }
     }
 }

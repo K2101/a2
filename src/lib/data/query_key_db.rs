@@ -1,7 +1,7 @@
-use super::Result;
 use crate::data;
 use crate::data::key_db::Cache;
 use crate::domain;
+use crate::service::Result;
 use redis::aio::MultiplexedConnection;
 use uuid::Uuid;
 

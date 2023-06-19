@@ -59,7 +59,7 @@ pub async fn web_internal_user_login<'a>(
         Ok(time_sec) => time_sec as usize,
         Err(err) => {
             println!("error to convert to unix seconds: {:?}", err);
-            return Err(ServiceError::InternalError(
+            return Err(ServiceError::InternalServerError(
                 "error to convert to unix seconds",
             ));
         }
@@ -70,7 +70,7 @@ pub async fn web_internal_user_login<'a>(
         Ok(token) => token,
         Err(err) => {
             println!("error to encode jwt: {:?}", err);
-            return Err(ServiceError::InternalError("error to encode jwt"));
+            return Err(ServiceError::InternalServerError("error to encode jwt"));
         }
     };
 
@@ -113,7 +113,7 @@ pub async fn web_internal_user_login<'a>(
         }
         Err(err) => {
             println!("error to insert sessions to cache: {:?}", err);
-            Err(ServiceError::DatabaseError(err))
+            Err(err)
         }
     }
 }

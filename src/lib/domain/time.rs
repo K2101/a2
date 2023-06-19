@@ -1,4 +1,4 @@
-use super::{AuthError, Result};
+use super::{DomainError, Result};
 use derive_more::Display;
 use serde::{Deserialize, Serialize};
 use time::{OffsetDateTime, UtcOffset};
@@ -38,7 +38,7 @@ impl Time {
         let time = OffsetDateTime::from_unix_timestamp_nanos(time as i128);
         match time {
             Ok(time) => Ok(time.unix_timestamp()),
-            Err(err) => Err(AuthError::ConvertUnixNanoToSecondsError(err.to_string())),
+            Err(err) => Err(DomainError::ConvertUnixNanoToSecondsError(err.to_string())),
         }
     }
 
@@ -46,7 +46,7 @@ impl Time {
         // return 2022-11-13 17:41:37
         let reading = match OffsetDateTime::from_unix_timestamp_nanos(self.0 as i128) {
             Ok(now) => now,
-            Err(err) => return Err(AuthError::GetUnixNanoTimeError(err.to_string())),
+            Err(err) => return Err(DomainError::GetUnixNanoTimeError(err.to_string())),
         };
 
         let offset = UtcOffset::from_whole_seconds(OFFSET).expect("invalid offset");
@@ -66,7 +66,7 @@ impl Time {
         // 2022-11-13 17:39:21.9898028 +07:00:00
         let full_reading = match OffsetDateTime::from_unix_timestamp_nanos(self.0 as i128) {
             Ok(now) => now,
-            Err(err) => return Err(AuthError::GetUnixNanoTimeError(err.to_string())),
+            Err(err) => return Err(DomainError::GetUnixNanoTimeError(err.to_string())),
         };
         let offset = UtcOffset::from_whole_seconds(OFFSET).expect("invalid offset");
         let full_datetime = format!("{}", full_reading.to_offset(offset));

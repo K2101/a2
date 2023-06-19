@@ -1,8 +1,8 @@
-use super::{DatabaseError, Result};
+use crate::service::Result;
 use scylla::batch::BatchStatement;
 use scylla::prepared_statement::PreparedStatement;
 use scylla::statement::Consistency;
-use scylla::{QueryResult, Session, SessionBuilder};
+use scylla::{ExecutionProfile, QueryResult, Session, SessionBuilder};
 
 #[derive(Debug)]
 pub struct Prepare {
@@ -48,17 +48,23 @@ impl Database {
         let url_2 = format!("{}:{}", uri_2, port);
 
         let consistency = Consistency::Quorum;
+
+        let handle = ExecutionProfile::builder()
+            .consistency(consistency)
+            .build()
+            .into_handle();
+
         let session = SessionBuilder::new()
             .known_node(url_1)
             .known_node(url_2)
             // .user(username, password)
-            .default_consistency(consistency)
-            .connection_timeout(std::time::Duration::from_secs(10))
+            .default_execution_profile_handle(handle)
+            .connection_timeout(std::time::Duration::from_secs(30))
             .build()
-            .await?;
+            .await
+            .unwrap();
 
         println!("Database connected");
-        println!("Default consistency: {:?}", consistency);
         println!("Session: {:?}", session);
 
         let database = Self {
@@ -231,12 +237,8 @@ impl Database {
                     status
             ) VALUES(?,?,?,?,?,?);",
             )
-            .await;
-
-        let insert = match insert {
-            Ok(insert) => insert,
-            Err(e) => return Err(DatabaseError::QueryError(e)),
-        };
+            .await
+            .unwrap();
 
         println!("insert_user_domain created");
         Ok(insert)
@@ -255,12 +257,8 @@ impl Database {
                     status
                 ) VALUES(?,?,?,?,?,?);",
             )
-            .await;
-
-        let insert_internal_user_domain = match insert_internal_user_domain {
-            Ok(insert) => insert,
-            Err(e) => return Err(DatabaseError::QueryError(e)),
-        };
+            .await
+            .unwrap();
 
         println!("insert_internal_user_domain created");
         Ok(insert_internal_user_domain)
@@ -270,12 +268,8 @@ impl Database {
         let session = self.get_session();
         let set_get_user_credentials = session
             .prepare("SELECT * FROM auth.web_user WHERE email = ?;")
-            .await;
-
-        let set_get_user_credentials = match set_get_user_credentials {
-            Ok(insert) => insert,
-            Err(e) => return Err(DatabaseError::QueryError(e)),
-        };
+            .await
+            .unwrap();
 
         println!("set_get_user_credentials created");
         Ok(set_get_user_credentials)
@@ -285,12 +279,8 @@ impl Database {
         let session = self.get_session();
         let set_get_internal_user_credentials = session
             .prepare("SELECT * FROM auth.web_internal_user WHERE email = ?;")
-            .await;
-
-        let set_get_internal_user_credentials = match set_get_internal_user_credentials {
-            Ok(insert) => insert,
-            Err(e) => return Err(DatabaseError::QueryError(e)),
-        };
+            .await
+            .unwrap();
 
         println!("set_get_internal_user_credentials created");
         Ok(set_get_internal_user_credentials)

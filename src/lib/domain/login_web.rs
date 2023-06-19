@@ -1,4 +1,4 @@
-use super::{AuthError, Result};
+use super::{DomainError, Result};
 
 #[derive(Debug)]
 pub struct WebUser {
@@ -16,7 +16,7 @@ impl WebUser {
         if let Some(mfa) = mfa {
             mfa_mut = Some(mfa.trim().to_string());
             if mfa_mut.as_ref().unwrap().is_empty() {
-                return Err(AuthError::EmptyContent("mfa is empty"));
+                return Err(DomainError::EmptyContent("mfa is empty"));
             }
         } else {
             mfa_mut = None;
@@ -24,10 +24,10 @@ impl WebUser {
 
         // more validation
         if email.is_empty() {
-            return Err(AuthError::EmptyContent("email is empty"));
+            return Err(DomainError::EmptyContent("email is empty"));
         }
         if password.is_empty() {
-            return Err(AuthError::EmptyContent("password is empty"));
+            return Err(DomainError::EmptyContent("password is empty"));
         }
 
         Ok(Self {
@@ -52,14 +52,14 @@ impl WebInternalUser {
         let mfa = mfa.trim().to_string();
         // more validation
         if email.is_empty() {
-            return Err(AuthError::EmptyContent("email is empty"));
+            return Err(DomainError::EmptyContent("email is empty"));
         }
         if password.is_empty() {
-            return Err(AuthError::EmptyContent("password is empty"));
+            return Err(DomainError::EmptyContent("password is empty"));
         }
 
         if mfa.is_empty() {
-            return Err(AuthError::EmptyContent("mfa is empty"));
+            return Err(DomainError::EmptyContent("mfa is empty"));
         }
 
         Ok(Self {

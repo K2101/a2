@@ -16,7 +16,7 @@ pub struct ApproveRetailCustomer {
 }
 
 impl TryFrom<ApproveRetailCustomer> for domain::user_domain::ApproveRetailCustomer {
-    type Error = domain::AuthError;
+    type Error = domain::DomainError;
 
     fn try_from(appr_rtc: ApproveRetailCustomer) -> Result<Self, Self::Error> {
         domain::user_domain::ApproveRetailCustomer::new(appr_rtc.email)

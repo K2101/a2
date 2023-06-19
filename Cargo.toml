@@ -32,7 +32,7 @@ tonic = "0"
 prost = "0"
 cookie = "0"
 base64 = "0"
-totp-rs = { version = "4", features = ["qr"] }
+totp-rs = { version = "5", features = ["qr"] }
 
 
 

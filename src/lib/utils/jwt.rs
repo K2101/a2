@@ -1,12 +1,12 @@
 use crate::config::app_config::AppConfig;
 use crate::domain::claims::Claims;
-use crate::domain::AuthError;
+use crate::domain::DomainError;
 use crate::service::ServiceError;
 use actix_web::http::header;
 use actix_web::HttpRequest;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 
-pub fn encode_jwt(app_config: &AppConfig, claims: &Claims) -> Result<String, AuthError> {
+pub fn encode_jwt(app_config: &AppConfig, claims: &Claims) -> Result<String, DomainError> {
     // The default algorithm is HS256, which uses a shared secret.
     let token = encode(
         &Header::default(),
@@ -16,7 +16,7 @@ pub fn encode_jwt(app_config: &AppConfig, claims: &Claims) -> Result<String, Aut
 
     match token {
         Ok(token) => Ok(token),
-        Err(err) => Err(AuthError::EncodeJWTError(err.to_string())),
+        Err(err) => Err(DomainError::EncodeJWTError(err.to_string())),
     }
 }
 

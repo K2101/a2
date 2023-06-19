@@ -29,7 +29,7 @@ pub async fn web_refresh_token_helper(
     // also add rate limit to this route
     match utils::jwt::decode_jwt(app_config, jwt) {
         // jwt still valid
-        Ok(_) => return Err(service::ServiceError::BadRequestError),
+        Ok(_) => return Err(service::ServiceError::UnAuthorized),
         Err(_) => (),
     }
 
@@ -121,7 +121,7 @@ pub async fn web_refresh_token_helper(
             Ok(time_sec) => time_sec as usize,
             Err(err) => {
                 println!("error to convert to unix seconds: {:?}", err);
-                return Err(service::ServiceError::InternalError(
+                return Err(service::ServiceError::InternalServerError(
                     "error to convert to unix seconds",
                 ));
             }
@@ -170,7 +170,7 @@ pub async fn web_refresh_token_helper(
             Ok(time_sec) => time_sec as usize,
             Err(err) => {
                 println!("error to convert to unix seconds: {:?}", err);
-                return Err(service::ServiceError::InternalError(
+                return Err(service::ServiceError::InternalServerError(
                     "error to convert to unix seconds",
                 ));
             }

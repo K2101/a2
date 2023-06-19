@@ -1,6 +1,6 @@
-use super::Result;
 use crate::data::database::Database;
 use crate::domain;
+use crate::service::Result;
 use scylla::QueryResult;
 
 pub async fn get_customer_credentials(database: &Database, email: &str) -> Result<QueryResult> {

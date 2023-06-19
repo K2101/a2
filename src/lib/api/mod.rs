@@ -1,7 +1,7 @@
 pub mod rest;
 pub mod rpc;
 
-use crate::domain::AuthError;
+use crate::domain::DomainError;
 use crate::service::ServiceError;
 use actix_web::http::StatusCode;
 use actix_web::{error, web, HttpResponse};
@@ -12,7 +12,10 @@ pub type Result<T> = std::result::Result<T, ApiError>;
 #[derive(Debug, thiserror::Error)]
 pub enum ApiError {
     #[error("Bad Request: {0}")]
-    BadRequest(#[from] AuthError),
+    DomainError(#[from] DomainError),
+
+    #[error("Bad Request: {0}")]
+    BadRequest(&'static str),
 
     #[error("Invalid credentials")]
     InvalidCredentials,
@@ -45,13 +48,14 @@ pub enum ApiError {
 impl From<ServiceError> for ApiError {
     fn from(err: ServiceError) -> Self {
         match err {
-            ServiceError::AuthError(text) => ApiError::BadRequest(text),
+            ServiceError::DomainError(text) => ApiError::DomainError(text),
+            ServiceError::BadRequest(text) => ApiError::BadRequest(text),
+            ServiceError::InvalidData(text) => ApiError::BadRequest(text),
             ServiceError::InvalidCredentials => ApiError::InvalidCredentials,
             ServiceError::NotFound => ApiError::NotFound,
             ServiceError::UnAuthorized => ApiError::UnAuthorized,
             ServiceError::PermissionError(_) => ApiError::PermissionError,
             ServiceError::Forbidden(text) => ApiError::Forbidden(text),
-            ServiceError::BadRequestError => ApiError::BadRequestError,
             _ => ApiError::InternalServerError,
         }
     }
@@ -96,6 +100,7 @@ impl error::ResponseError for ApiError {
 
     fn status_code(&self) -> StatusCode {
         match *self {
+            ApiError::DomainError(_) => StatusCode::BAD_REQUEST,
             ApiError::BadRequest(_) => StatusCode::BAD_REQUEST,
             ApiError::BadRequestError => StatusCode::BAD_REQUEST,
             ApiError::InvalidCredentials => StatusCode::BAD_REQUEST,

@@ -9,10 +9,13 @@ pub mod user_domain;
 
 pub const SEVEN_DAYS: i32 = 604800;
 
-pub type Result<T> = std::result::Result<T, AuthError>;
+pub type Result<T> = std::result::Result<T, DomainError>;
 
 #[derive(Debug, thiserror::Error)]
-pub enum AuthError {
+pub enum DomainError {
+    #[error("invalid data: {0}")]
+    InvalidData(&'static str),
+
     #[error("empty content: {0}")]
     EmptyContent(&'static str),
 

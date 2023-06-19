@@ -1,5 +1,5 @@
 use super::user::{InternalUser, Role, Status, User};
-use super::{AuthError, Result};
+use super::{DomainError, Result};
 use crate::config::app_config::AppConfig;
 use crate::utils::hash;
 use uuid::Uuid;
@@ -37,7 +37,7 @@ impl UserDomain {
             Ok(hashed) => hashed,
             Err(err) => {
                 println!("domain hash error: {:?}", err);
-                return Err(AuthError::HashError("hash error".to_string()));
+                return Err(DomainError::HashError("hash error".to_string()));
             }
         };
 
@@ -81,7 +81,7 @@ impl ApproveRetailCustomer {
         let email = email.trim().to_lowercase();
         // more validation
         if email.is_empty() {
-            return Err(AuthError::EmptyContent("email is empty"));
+            return Err(DomainError::EmptyContent("email is empty"));
         }
         let status = Status::Active;
 

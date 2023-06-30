@@ -1,76 +1,92 @@
+use super::status::Status;
 use super::{DomainError, Result};
-use serde::Deserialize;
+use uuid::Uuid;
 
-#[derive(Debug, PartialEq, PartialOrd, Deserialize)]
-pub enum Status {
-    Active,
-    InActive,
-    Terminated,
+#[derive(Debug)]
+pub struct UserContext {
+    pub id: Uuid,
+    pub session_id: String,
+    pub role: Role,
 }
 
-impl From<Status> for &'static str {
-    fn from(status: Status) -> Self {
-        use Status::*;
-        match status {
-            Active => "ACTIVE",
-            InActive => "INACTIVE",
-            Terminated => "TERMINATED",
-        }
-    }
+#[derive(Debug, PartialEq, PartialOrd)]
+pub enum UserRole {
+    Personal,
+    Coporate,
+    ThirdParty,
 }
 
-impl From<&Status> for &'static str {
-    fn from(status: &Status) -> Self {
-        use Status::*;
-        match status {
-            Active => "ACTIVE",
-            InActive => "INACTIVE",
-            Terminated => "TERMINATED",
-        }
-    }
-}
-
-impl TryFrom<&str> for Status {
-    type Error = DomainError;
-    fn try_from(status: &str) -> std::result::Result<Self, Self::Error> {
-        let status = status.trim();
-        use Status::*;
-        match status {
-            "ACTIVE" => Ok(Active),
-            "INACTIVE" => Ok(InActive),
-            "TERMINATED" => Ok(Terminated),
-            _ => Err(DomainError::StatusError),
-        }
-    }
+#[derive(Debug, PartialEq, PartialOrd)]
+pub enum InternalRole {
+    SuperAdmin,
+    Admin,
+    Manager,
+    Developer,
+    Account,
+    Support,
 }
 
 #[derive(Debug, PartialEq, PartialOrd)]
 pub enum Role {
-    PersonalUser,
-    CoporateUser,
-    ThirdPartyUser,
+    User(UserRole),
+    Internal(InternalRole),
+}
+impl From<&Role> for &'static str {
+    fn from(role: &Role) -> Self {
+        match role {
+            Role::User(r) => match r {
+                UserRole::Personal => "PERSONAL",
+                UserRole::Coporate => "COPORATE",
+                UserRole::ThirdParty => "THIRD_PARTY",
+            },
+            Role::Internal(ir) => match ir {
+                InternalRole::SuperAdmin => "SUPER_ADMIN",
+                InternalRole::Admin => "ADMIN",
+                InternalRole::Manager => "MANAGER",
+                InternalRole::Developer => "DEVELOPER",
+                InternalRole::Account => "ACCOUNT",
+                InternalRole::Support => "SUPPORT",
+            },
+        }
+    }
 }
 
 impl From<Role> for &'static str {
     fn from(role: Role) -> Self {
-        use Role::*;
         match role {
-            PersonalUser => "PERSONAL_USER",
-            CoporateUser => "COPORATE_USER",
-            ThirdPartyUser => "THIRD_PARTY_USER",
+            Role::User(r) => match r {
+                UserRole::Personal => "PERSONAL",
+                UserRole::Coporate => "COPORATE",
+                UserRole::ThirdParty => "THIRD_PARTY",
+            },
+            Role::Internal(ir) => match ir {
+                InternalRole::SuperAdmin => "SUPER_ADMIN",
+                InternalRole::Admin => "ADMIN",
+                InternalRole::Manager => "MANAGER",
+                InternalRole::Developer => "DEVELOPER",
+                InternalRole::Account => "ACCOUNT",
+                InternalRole::Support => "SUPPORT",
+            },
         }
     }
 }
 
 impl TryFrom<&str> for Role {
     type Error = DomainError;
-    fn try_from(status: &str) -> std::result::Result<Self, Self::Error> {
-        let status = status.trim();
-        use Role::*;
-        match status {
-            "PERSONAL_USER" => Ok(PersonalUser),
-            "COPORATE_USER" => Ok(CoporateUser),
-            "THIRD_PARTY_USER" => Ok(ThirdPartyUser),
+    fn try_from(role: &str) -> std::result::Result<Self, Self::Error> {
+        use InternalRole::*;
+        use UserRole::*;
+        match role {
+            "PERSONAL" => Ok(Self::User(Personal)),
+            "COPORATE" => Ok(Self::User(Coporate)),
+            "THIRD_PARTY" => Ok(Self::User(ThirdParty)),
+
+            "SUPER_ADMIN" => Ok(Self::Internal(SuperAdmin)),
+            "ADMIN" => Ok(Self::Internal(Admin)),
+            "MANAGER" => Ok(Self::Internal(Manager)),
+            "DEVELOPER" => Ok(Self::Internal(Developer)),
+            "ACCOUNT" => Ok(Self::Internal(Account)),
+            "SUPPORT" => Ok(Self::Internal(Support)),
             _ => Err(DomainError::RoleError),
         }
     }
@@ -79,122 +95,46 @@ impl TryFrom<&str> for Role {
 #[derive(Debug, PartialEq, PartialOrd)]
 pub struct User(Role, Status);
 impl User {
-    pub fn new(role: Role, status: Status) -> Self {
-        Self(role, status)
-    }
-    pub fn update_status(_internal_user: &InternalUser, user: User, status: Status) -> Self {
-        Self(user.0, status)
-    }
-    pub fn into_inner(self) -> (&'static str, &'static str) {
-        (self.0.into(), self.1.into())
-    }
-}
-
-#[derive(Debug, PartialEq, PartialOrd)]
-pub enum InternalRole {
-    SuperAdminUser,
-    AdminUser,
-    ManagerUser,
-    DeveloperUser,
-    AccountUser,
-    SupportUser,
-}
-impl From<InternalRole> for &'static str {
-    fn from(internal_role: InternalRole) -> Self {
-        use InternalRole::*;
-        match internal_role {
-            SuperAdminUser => "SUPER_ADMIN_USER",
-            AdminUser => "ADMIN_USER",
-            ManagerUser => "MANAGER_USER",
-            DeveloperUser => "DEVELOPER_USER",
-            AccountUser => "ACCOUNT_USER",
-            SupportUser => "SUPPORT_USER",
-        }
-    }
-}
-
-impl From<&InternalRole> for &'static str {
-    fn from(internal_role: &InternalRole) -> Self {
-        use InternalRole::*;
-        match internal_role {
-            SuperAdminUser => "SUPER_ADMIN_USER",
-            AdminUser => "ADMIN_USER",
-            ManagerUser => "MANAGER_USER",
-            DeveloperUser => "DEVELOPER_USER",
-            AccountUser => "ACCOUNT_USER",
-            SupportUser => "SUPPORT_USER",
-        }
-    }
-}
-
-impl TryFrom<&str> for InternalRole {
-    type Error = DomainError;
-    fn try_from(internal_role: &str) -> std::result::Result<Self, Self::Error> {
-        let internal_role = internal_role.trim();
-        use InternalRole::*;
-        match internal_role {
-            "SUPER_ADMIN_USER" => Ok(SuperAdminUser),
-            "ADMIN_USER" => Ok(AdminUser),
-            "MANAGER_USER" => Ok(ManagerUser),
-            "DEVELOPER_USER" => Ok(DeveloperUser),
-            "ACCOUNT_USER" => Ok(AccountUser),
-            "SUPPORT_USER" => Ok(SupportUser),
-            _ => Err(DomainError::InternalRoleError),
-        }
-    }
-}
-
-#[derive(Debug, PartialEq, PartialOrd)]
-pub struct InternalUser(InternalRole, Status);
-
-impl InternalUser {
-    pub fn new(internal_role: InternalRole, status: Status) -> Result<Self> {
-        if internal_role == InternalRole::SuperAdminUser {
+    pub fn new(role: Role, status: Status) -> Result<Self> {
+        if role == Role::Internal(InternalRole::SuperAdmin) {
             return Err(DomainError::PermissionError(
                 "permission error, cannot create a super admin",
             ));
         }
-        if internal_role == InternalRole::AdminUser {
+        if role == Role::Internal(InternalRole::Admin) {
             return Err(DomainError::PermissionError(
                 "permission error, cannot create an admin user",
             ));
         }
-        Ok(Self(internal_role, status))
+        Ok(Self(role, status))
     }
 
-    pub fn update_internal_role(
-        user: &InternalUser,
-        update_user: InternalUser,
-        role: InternalRole,
-    ) -> Result<Self> {
-        if user.0 != InternalRole::AdminUser {
+    pub fn into_inner(self) -> (Role, Status) {
+        (self.0, self.1)
+    }
+
+    pub fn update_role(user: User, new_role: Role) -> Result<Self> {
+        if user.0 != Role::Internal(InternalRole::Admin) {
             return Err(DomainError::PermissionError(
-                "who use this fn must be an admin",
+                "permission error, only admin can update role",
             ));
         }
-
-        Ok(Self(role, update_user.1))
+        let user = Self(new_role, user.1);
+        Ok(user)
     }
 
-    pub fn update_internal_status(
-        user: &InternalUser,
-        update_user: InternalUser,
-        status: Status,
-    ) -> Result<Self> {
-        if user.0 != InternalRole::AdminUser {
-            return Err(DomainError::PermissionError(
-                "who use this fn must be an admin",
-            ));
-        }
-
-        Ok(Self(update_user.0, status))
+    pub fn update_status(user: User, status: Status) -> Self {
+        Self(user.0, status)
+    }
+    pub fn as_ref(&self) -> (&Role, &Status) {
+        (&self.0, &self.1)
     }
 
-    pub fn get_str(&self) -> (&str, &str) {
+    pub fn as_str(&self) -> (&str, &str) {
         let role = &self.0;
+        let role_str: &str = role.into();
         let status = &self.1;
-        let role: &str = role.into();
-        let status: &str = status.into();
-        (role, status)
+        let status_str: &str = status.into();
+        (role_str, status_str)
     }
 }

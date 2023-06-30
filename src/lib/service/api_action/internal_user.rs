@@ -43,8 +43,8 @@ pub async fn web_internal_user_login<'a>(
         return Err(ServiceError::InvalidCredentials);
     }
 
-    let status: domain::user::Status = status.try_into()?;
-    if status != domain::user::Status::Active {
+    let status: domain::status::Status = status.try_into()?;
+    if status != domain::status::Status::Active {
         return Err(ServiceError::Forbidden("this user is not active"));
     }
 

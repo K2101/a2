@@ -31,8 +31,7 @@ pub async fn employee_create(
             )?;
 
             // check if email or employee already exist ??
-            // todo create table like unique check lightweight transaction
-            // like retail_customer unique email checking before produce employcreate
+            // alread check at internal!
             data::query::insert_internal_user_credentials(db, new_emp_domain).await?;
             Ok(())
         }

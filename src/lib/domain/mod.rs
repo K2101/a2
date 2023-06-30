@@ -3,6 +3,7 @@ pub mod employee;
 pub mod login_mobile;
 pub mod login_web;
 pub mod session;
+pub mod status;
 pub mod time;
 pub mod user;
 pub mod user_domain;

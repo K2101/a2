@@ -31,7 +31,7 @@ pub async fn subscribe_and_consume(
         let ab = Arbiter::new();
         ab.spawn(async move {
             let topic = [
-                Topic::EmployeeCreate.get_str(),
+                Topic::EmployeeCreateAfterCheck.get_str(),
                 Topic::RetailCustomerApprove.get_str(),
                 Topic::RetailCustomerCreateRequestAfterCheck.get_str(),
             ];
@@ -138,7 +138,7 @@ async fn consuming_action(
     let topic: Topic = msg.topic().try_into().expect("error to unwrap topic");
 
     match topic {
-        Topic::EmployeeCreate => {
+        Topic::EmployeeCreateAfterCheck => {
             service::event_action::internal::employee_create(app_config, db, msg).await?;
         }
         Topic::RetailCustomerApprove => {

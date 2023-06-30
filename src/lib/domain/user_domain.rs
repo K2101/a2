@@ -1,4 +1,5 @@
-use super::user::{InternalUser, Role, Status, User};
+use super::status::Status;
+use super::user::{Role, User};
 use super::{DomainError, Result};
 use crate::config::app_config::AppConfig;
 use crate::utils::hash;
@@ -31,7 +32,7 @@ impl UserDomain {
 
         let role: Role = role.try_into()?;
         let status: Status = status.try_into()?;
-        let user = User::new(role, status);
+        let user = User::new(role, status)?;
 
         let hashed = match hash(app_config, password, None) {
             Ok(hashed) => hashed,
@@ -52,6 +53,8 @@ impl UserDomain {
 
     pub fn into_inner(self) -> (Uuid, String, String, String, &'static str, &'static str) {
         let (role, status) = self.user.into_inner();
+        let role: &str = role.into();
+        let status: &str = status.into();
         (
             self.customer_id,
             self.email,
@@ -67,7 +70,7 @@ impl UserDomain {
 pub struct InternalUserDomain {
     email: String,
     password: String,
-    internal_user: InternalUser,
+    internal_user: User,
 }
 
 #[derive(Debug)]

@@ -1,4 +1,4 @@
-use super::user::InternalUser;
+use super::user::User;
 use super::{DomainError, Result};
 use crate::config::app_config::AppConfig;
 use crate::utils;
@@ -10,7 +10,7 @@ pub struct Employee {
     email: String,
     password: String,
     phone: String,
-    role_and_status: InternalUser,
+    role_and_status: User,
 }
 
 impl Employee {
@@ -45,9 +45,9 @@ impl Employee {
                 return Err(DomainError::HashError("hash error".to_string()));
             }
         };
-        let role: super::user::InternalRole = role.as_str().try_into()?;
-        let status: super::user::Status = status.as_str().try_into()?;
-        let role_and_status = InternalUser::new(role, status)?;
+        let role: super::user::Role = role.as_str().try_into()?;
+        let status: super::status::Status = status.as_str().try_into()?;
+        let role_and_status = User::new(role, status)?;
 
         Ok(Self {
             employee_id,
@@ -59,7 +59,7 @@ impl Employee {
     }
 
     pub fn get_ref(&self) -> (&Uuid, &str, &str, &str, &str, &str) {
-        let (role, status) = self.role_and_status.get_str();
+        let (role, status) = self.role_and_status.as_str();
         (
             &self.employee_id,
             self.email.as_str(),

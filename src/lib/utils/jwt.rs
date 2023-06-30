@@ -33,10 +33,10 @@ pub fn decode_jwt(app_config: &AppConfig, token: &str) -> Result<Claims, String>
     }
 }
 
-pub fn decode_jwt_string(jwt_secret: String, token: &str) -> Result<Claims, ServiceError> {
+pub fn decode_jwt_take_secret(secret: &str, token: &str) -> Result<Claims, ServiceError> {
     let token = decode::<Claims>(
         token,
-        &DecodingKey::from_secret(jwt_secret.as_bytes()),
+        &DecodingKey::from_secret(secret.as_bytes()),
         &Validation::default(),
     );
 

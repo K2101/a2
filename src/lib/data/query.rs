@@ -47,12 +47,30 @@ pub async fn insert_customer_credentials(
     Ok(result)
 }
 
+pub async fn check_retail_customer_exist(email: &str, db: &Database) -> Result<bool> {
+    let result = db
+        .get_session()
+        .query(
+            "SELECT customer_id FROM web_user WHERE email = ?;",
+            (email,),
+        )
+        .await?
+        .rows
+        .unwrap();
+
+    if result.is_empty() {
+        Ok(false)
+    } else {
+        Ok(true)
+    }
+}
+
 pub async fn retail_customer_approve(
-    approve_rtc: domain::user_domain::ApproveRetailCustomer,
+    email: &str,
+    active_status: &str,
     database: &Database,
 ) -> Result<()> {
     let session = database.get_session();
-    let (email, active_status) = approve_rtc.into_inner();
     session
         .query(
             "UPDATE web_user SET status = ? WHERE email = ?",

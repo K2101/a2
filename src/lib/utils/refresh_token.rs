@@ -101,8 +101,8 @@ pub async fn web_refresh_token_helper(
             return Err(service::ServiceError::UnAuthorized);
         }
 
-        let status: domain::user::Status = status.try_into()?;
-        if status != domain::user::Status::Active {
+        let status: domain::status::Status = status.try_into()?;
+        if status != domain::status::Status::Active {
             return Err(service::ServiceError::Forbidden("this user is not active"));
         }
 
@@ -150,8 +150,8 @@ pub async fn web_refresh_token_helper(
             return Err(service::ServiceError::UnAuthorized);
         }
 
-        let status: domain::user::Status = status.try_into()?;
-        if status != domain::user::Status::Active {
+        let status: domain::status::Status = status.try_into()?;
+        if status != domain::status::Status::Active {
             return Err(service::ServiceError::Forbidden("this user is not active"));
         }
 

@@ -157,7 +157,7 @@ impl UserAuthorization for UserAuthorizationService {
             return Ok(Response::new(respond));
         }
 
-        let status: domain::user::Status = match status.as_str().try_into() {
+        let status: domain::status::Status = match status.as_str().try_into() {
             Ok(s) => s,
             Err(_) => {
                 let respond = UserAuthorizationResponse {
@@ -167,7 +167,7 @@ impl UserAuthorization for UserAuthorizationService {
             }
         };
 
-        if status != domain::user::Status::Active {
+        if status != domain::status::Status::Active {
             let respond = UserAuthorizationResponse {
                 is_authorized: false,
             };

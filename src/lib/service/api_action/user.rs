@@ -40,8 +40,8 @@ pub async fn web_user_login<'c>(
         return Err(ServiceError::InvalidCredentials);
     }
 
-    let status: domain::user::Status = status.try_into()?;
-    if status != domain::user::Status::Active {
+    let status: domain::status::Status = status.try_into()?;
+    if status != domain::status::Status::Active {
         return Err(ServiceError::Forbidden("this user is not active"));
     }
     let session_id = rand(100);

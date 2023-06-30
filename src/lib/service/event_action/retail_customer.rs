@@ -3,7 +3,8 @@ use crate::config::app_config::AppConfig;
 use crate::data;
 use crate::data::database::Database;
 use crate::domain;
-use crate::domain::user::{Role, Status};
+use crate::domain::status::Status;
+use crate::domain::user::Role;
 use crate::service::{self, ServiceError};
 use flexbuffers::Reader;
 use rdkafka::message::BorrowedMessage;
@@ -28,7 +29,7 @@ pub async fn retail_customer_create_after_check(
             } = nrc;
 
             // hard code for new personal user || retail customer
-            let role: &str = Role::PersonalUser.into();
+            let role: &str = Role::User(domain::user::UserRole::Personal).into();
             let status: &str = Status::InActive.into();
 
             let domain_user_result = domain::user_domain::UserDomain::new(
@@ -58,7 +59,20 @@ pub async fn retail_customer_approve(db: &Database, msg: &BorrowedMessage<'_>) -
         Ok(appr_rtc) => {
             let approve_rtc_domain: domain::user_domain::ApproveRetailCustomer =
                 appr_rtc.try_into()?;
-            data::query::retail_customer_approve(approve_rtc_domain, db).await?;
+
+            // check exist before update
+            let (email, status) = approve_rtc_domain.into_inner();
+            let is_rt_cus_exist = data::query::check_retail_customer_exist(&email, db).await?;
+
+            if is_rt_cus_exist {
+                data::query::retail_customer_approve(&email, status, db).await?;
+            } else {
+                return Err(ServiceError::DatabaseError(
+                    scylla::transport::errors::QueryError::InvalidMessage(
+                        "this retail_customer is not yet inserted".to_string(),
+                    ),
+                ));
+            }
 
             Ok(())
         }

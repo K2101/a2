@@ -10,7 +10,7 @@ pub enum Topic {
     RetailCustomerApprove,
 
     // internal
-    EmployeeCreate,
+    EmployeeCreateAfterCheck,
 }
 
 impl Topic {
@@ -20,7 +20,7 @@ impl Topic {
             RetailCustomerCreateRequestAfterCheck => "RETAIL_CUSTOMER_CREATE_REQUEST_AFTER_CHECK",
             InternalUserCreateRequest => "INTERNAL_USER_CREATE_REQUEST",
             RetailCustomerApprove => "RETAIL_CUSTOMER_APPROVE",
-            EmployeeCreate => "EMPLOYEE_CREATE",
+            EmployeeCreateAfterCheck => "EMPLOYEE_CREATE_AFTER_CHECK",
         }
     }
 }
@@ -34,7 +34,7 @@ impl TryFrom<&str> for Topic {
             }
             "INTERNAL_USER_CREATE_REQUEST" => Ok(Self::InternalUserCreateRequest),
             "RETAIL_CUSTOMER_APPROVE" => Ok(Self::RetailCustomerApprove),
-            "EMPLOYEE_CREATE" => Ok(Self::EmployeeCreate),
+            "EMPLOYEE_CREATE_AFTER_CHECK" => Ok(Self::EmployeeCreateAfterCheck),
             _ => Err(Self::Error::InvalidTopic),
         }
     }

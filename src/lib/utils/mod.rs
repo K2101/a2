@@ -3,6 +3,7 @@ pub mod backoff;
 pub mod db_query_result_helper;
 pub mod hash;
 pub mod jwt;
+pub mod middlewares;
 pub mod rand;
 pub mod refresh_token;
 pub mod totp;
